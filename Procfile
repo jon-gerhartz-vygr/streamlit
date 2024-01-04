@@ -1,1 +1,1 @@
-release: streamlit run cashed_checks.py
+streamlit run cashed_checks.py
