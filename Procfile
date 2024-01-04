@@ -1,1 +1,1 @@
-web: streamlit run cashed_checks.py
+web: setup.sh && streamlit run cashed_checks.py
