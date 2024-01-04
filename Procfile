@@ -1,0 +1,1 @@
+release: streamlit run cashed_checks.py
