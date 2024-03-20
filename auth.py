@@ -7,7 +7,6 @@ import requests
 
 load_dotenv()
 BASE_URL = os.getenv("BASE_URL")
-LOGIN_URI = BASE_URL + os.getenv("LOGIN_URI")
 REFRESH_URI = BASE_URL + os.getenv("REFRESH_URI")
 
 
@@ -44,7 +43,13 @@ def construct_url(base_url, query_param_name, query_param_val):
 
 def refresh(token):
     url = construct_url(REFRESH_URI, 'token', token)
-    requests.get(url)
+    resp = requests.get(url)
+    resp_data = resp.json()
+    if 'error' in resp_data:
+        print(resp_data['error'])
+    else:
+        st.session_state['refresh_token'] = resp_data['refresh_token']
+        st.session_state['snowflake_token'] = resp_data['token']
 
 
 def logout():

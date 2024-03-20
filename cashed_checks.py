@@ -19,14 +19,13 @@ def begin():
         1. Upload an RCN file below
         2. Validate data in the preview
         3. Press "Run" to initiate data load
-        4. Confirm loaded stats match expectations
-        5. Smile because you just saved a lot of time!
+        4. Smile because you just saved a lot of time!
         """)
 
     st.divider()
 
     st.header("1. Upload RCN File")
-    uploaded_file = st.file_uploader("")
+    uploaded_file = st.file_uploader("Cashed Checks RCN File")
     return uploaded_file
 
 
@@ -58,16 +57,15 @@ def stg_data(show_run, dataframe, tbl_name):
     st.divider()
     st.header("3. Initiate Workflow")
     if show_run:
-        if st.button('Run'):
+        if st.button('Run', key='cashed_checks_button'):
             try:
                 with st.spinner("Loading data to stage tables..."):
                     drop_tbl_ddl = drop_tbl.format(tbl_name=tbl_name)
                     resp = execute_query(
-                        drop_tbl_ddl, st.session_state['snowflake_token'])
+                        drop_tbl_ddl)
                     st.write('✅ Stage table cleared')
                     schema = 'STG'
-                    load_resp = load_data(dataframe, tbl_name, schema,
-                                          st.session_state['snowflake_token'])
+                    load_resp = load_data(dataframe, tbl_name, schema)
                     st.write('✅ Stage table loaded')
                 return True
             except Exception as e:
@@ -78,8 +76,7 @@ def stg_data(show_run, dataframe, tbl_name):
 def merge_data():
     try:
         with st.spinner("Merging data to source tables..."):
-            resp = execute_query(insert_checks_paid,
-                                 st.session_state['snowflake_token'])
+            resp = execute_query(insert_checks_paid)
             st.write('✅ Source table loaded')
         return True
 
@@ -90,14 +87,11 @@ def merge_data():
 
 def log_and_update(filename):
     with st.spinner("Logging data to Audit Log and updating status in USD Distributions..."):
-        print(filename)
         log_events_formatted = log_events.format(filename=filename)
-        resp = execute_query(log_events_formatted,
-                             st.session_state['snowflake_token'])
+        resp = execute_query(log_events_formatted)
         st.write('✅ Logs written')
 
-        resp = execute_query(update_usd_dist,
-                             st.session_state['snowflake_token'])
+        resp = execute_query(update_usd_dist)
         st.write('✅ USD Distributions updated')
 
 
