@@ -4,7 +4,9 @@ from login import login_page
 from bubble_sync import snowflake_sync
 import streamlit as st
 
+st.session_state['snowflake_token'] = ''
 handle_auth()
+
 
 # MAX_RETRIES = 3
 # try:
