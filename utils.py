@@ -115,15 +115,3 @@ def execute_pd(query):
         except Exception as e:
             message = handle_db_error(e)
             return message
-
-
-def update_bubble_thing(obj_type, obj_id, payload, key):
-    headers = {'authorization': f'bearer {key}'}
-    base_url = f'https://www.investvoyager.com/api/1.1/obj/{obj_type}/{obj_id}'
-
-    try:
-        resp = requests.patch(base_url, headers=headers, json=payload)
-        return resp
-    except Exception as e:
-        print(e)
-        return str(e)

@@ -1,3 +1,4 @@
+import asyncio
 from dotenv import load_dotenv
 import os
 import snowflake.connector
@@ -56,7 +57,7 @@ def logout():
     st.session_state['authenticated'] = False
 
 
-def handle_auth():
+async def handle_auth():
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
 
