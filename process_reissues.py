@@ -119,15 +119,15 @@ def process_reissues():
 
         run_button = st.button('Run', key='run_resissue_flow_button')
         if run_button:
-            # with st.spinner('Creating check records in USD Distributions...'):
-            # create_records_status = create_check_records(
-            #     distribution_name, check_date, check_file)
+            with st.spinner('Creating check records in USD Distributions...'):
+                create_records_status = create_check_records(
+                    distribution_name, check_date, check_file)
 
-            # if create_records_status == 'Query executed':
-            #     st.write('✅ Check records created')
-            # else:
-            #     st.write('❌ Writing check records failed')
-            #     print(create_records_status)
+            if create_records_status == 'Query executed':
+                st.write('✅ Check records created')
+            else:
+                st.write('❌ Writing check records failed')
+                print(create_records_status)
 
             with st.spinner('Creating check files...'):
                 is_foriegn_list = [True, False]

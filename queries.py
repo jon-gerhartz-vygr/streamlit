@@ -84,54 +84,29 @@ FROM LIQUIDATION_TRUST.SRC.TRUST_DISTRIBUTIONS;
 
 
 get_approved_reissue_requests = """
-SELECT 
-    'TEST DIST' as distribution_name
-    , check_number
-    , check_date
-    , 'UNCASHED' as bank_status
-    , bank_status_updated_ts
-    , mail_status
-    , mail_status_updated_ts
-    , check_amount
-    , payee
-    , address1
-    , address2
-    , city
-    , state
-    , zip
-    , country_code
-    , is_foreign
-    , claim_number
-    , check_file
-    , updated_at_ts
-    , 'REISSUE_APPROVED' as internal_status
-    , current_date - interval '7 days' as internal_status_updated_ts
-FROM LIQUIDATION_TRUST.SRC.USD_DISTRIBUTIONS WHERE distribution_name = 'September 2023 USD Distribution' ORDER BY random(123) LIMIT 100;
+with have_cashed_checks as (
+    SELECT distinct claim_number as claim_number
+    FROM LIQUIDATION_TRUST.SRC.USD_DISTRIBUTIONS
+    WHERE bank_status = 'CASHED'
+)
+SELECT usd.*, u.id
+FROM LIQUIDATION_TRUST.SRC.USD_DISTRIBUTIONS usd
+JOIN LIQUIDATION_TRUST.SRC.USER_CLAIM uc on uc.claim_number = usd.claim_number
+JOIN LIQUIDATION_TRUST.SRC.USERS u on u.id = uc.user_id
+LEFT JOIN LIQUIDATION_TRUST.SRC.TAGS ut on ut.identifier = u.id
+LEFT JOIN LIQUIDATION_TRUST.SRC.TAGS ct on ct.identifier = usd.check_number
+LEFT JOIN LIQUIDATION_TRUST.SRC.TAGS cat on cat.identifier = uc.claim_number
+LEFT JOIN have_cashed_checks hcc on hcc.claim_number = usd.claim_number
+WHERE
+    usd.distribution_name = '{distribution_name}'
+    and (usd.bank_status = 'UNCASHED' OR (usd.bank_status = 'VOID' and usd.mail_status = 'UNDELIVERABLE'))
+    and usd.internal_status = 'REISSUE_APPROVED'
+    and ut.identifier is null
+    and ct.identifier is null
+    and cat.identifier is null
+    and hcc.claim_number is null
+QUALIFY rank() over (partition by usd.claim_number order by check_date desc) = 1;
 """
-# """
-# with have_cashed_checks as (
-#     SELECT distinct claim_number as claim_number
-#     FROM LIQUIDATION_TRUST.SRC.USD_DISTRIBUTIONS
-#     WHERE bank_status = 'CASHED'
-# )
-# SELECT usd.*, u.id
-# FROM LIQUIDATION_TRUST.SRC.USD_DISTRIBUTIONS usd
-# JOIN LIQUIDATION_TRUST.SRC.USER_CLAIM uc on uc.claim_number = usd.claim_number
-# JOIN LIQUIDATION_TRUST.SRC.USERS u on u.id = uc.user_id
-# LEFT JOIN LIQUIDATION_TRUST.SRC.TAGS ut on ut.identifier = u.id
-# LEFT JOIN LIQUIDATION_TRUST.SRC.TAGS ct on ct.identifier = usd.check_number
-# LEFT JOIN LIQUIDATION_TRUST.SRC.TAGS cat on cat.identifier = uc.claim_number
-# LEFT JOIN have_cashed_checks hcc on hcc.claim_number = usd.claim_number
-# WHERE
-#     usd.distribution_name = '{distribution_name}'
-#     and (usd.bank_status = 'UNCASHED' OR (usd.bank_status = 'VOID' and usd.mail_status = 'UNDELIVERABLE'))
-#     and usd.internal_status = 'REISSUE_APPROVED'
-#     and ut.identifier is null
-#     and ct.identifier is null
-#     and cat.identifier is null
-#     and hcc.claim_number is null
-# QUALIFY rank() over (partition by usd.claim_number order by check_date desc) = 1;
-# """
 
 q_truncate_stg = """
 TRUNCATE LIQUIDATION_TRUST.STG.USD_DISTRIBUTIONS_CHECK_CREATION
