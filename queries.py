@@ -12,6 +12,7 @@ SELECT
     ,amount_fmt as amount
     ,citizen_uuid
     ,date_paid_fmt as paid_dt
+    ,'{filename}' as filename
 FROM (
     SELECT
         "0" as rcn_string
@@ -64,6 +65,7 @@ from "LIQUIDATION_TRUST"."SRC"."CHECKS_PAID_FORMATTED" b
 JOIN "LIQUIDATION_TRUST"."SRC"."USD_DISTRIBUTIONS" a on a.check_amount = b.check_amount and a.check_number = b.check_number
 where 
     a.bank_status <> 'CASHED'
+    and b.filename = '{filename}'
    ) b
 """
 
@@ -75,6 +77,7 @@ where
     a.check_number=b.check_number and 
     a.check_amount=b.check_amount and
     a.bank_status <> 'CASHED' 
+    and b.filename = '{filename}'
 """
 
 get_distributions = """

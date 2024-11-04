@@ -73,10 +73,12 @@ def stg_data(show_run, dataframe, tbl_name):
                 return False
 
 
-def merge_data():
+def merge_data(filename):
     try:
         with st.spinner("Merging data to source tables..."):
-            resp = execute_query(insert_checks_paid)
+            insert_checks_paid_formatted = insert_checks_paid.format(
+                filename=filename)
+            resp = execute_query(insert_checks_paid_formatted)
             st.write('✅ Source table loaded')
         return True
 
@@ -91,7 +93,8 @@ def log_and_update(filename):
         resp = execute_query(log_events_formatted)
         st.write('✅ Logs written')
 
-        resp = execute_query(update_usd_dist)
+        update_usd_dist_formatted = update_usd_dist.format(filename=filename)
+        resp = execute_query(update_usd_dist_formatted)
         st.write('✅ USD Distributions updated')
 
 
@@ -102,6 +105,6 @@ def cashed_checks():
     tbl_name = 'CHECKS_PAID'
     stg_successful = stg_data(show_run, dataframe, tbl_name)
     if stg_successful:
-        merge_data()
         filename = str(uploaded_file.name)
+        merge_data(filename)
         log_and_update(filename)
