@@ -51,12 +51,12 @@ def begin():
         col2.metric("Total USD Notional", f"${total_usd_notional:,.2f}")
         col3.metric("Distinct Check Numbers", f"{distinct_check_nums:,}")
 
-        return True, is_test_mode
+        return True, is_test_mode, checks_to_load_df
 
     except Exception as e:
         print(e)
         st.write("Failed to load checks")
-        return False, is_test_mode
+        return False, is_test_mode, pd.Dataframe()
 
 
 def load_checks_to_bubble(checks_df):
@@ -137,7 +137,7 @@ def load_unique_ids_to_snowflake(successful_uploads, checks_df):
 
 
 def load_checks_page():
-    successfully_loaded_checks, is_test_mode = begin()
+    successfully_loaded_checks, is_test_mode, checks_to_load_df = begin()
 
     if is_test_mode:
         st.session_state["is_test_mode"] = True
@@ -145,9 +145,9 @@ def load_checks_page():
     if successfully_loaded_checks:
         st.write("Step 1 - Load Checks to Bubble")
         st.button('Load Checks', key='load_checks_to_bubble')
-        if st.session_state['load_checks_to_bubble']:
+        if len(checks_to_load_df.index) > 0:
             all_success, successful_resps, successful_uploads, failed_checks_df, failed_count = load_checks_to_bubble(
-                st.session_state["checks_to_load_df"])
+                checks_to_load_df)
             if all_success:
                 st.success(f"✅ {successful_resps} Checks loaded successfully!")
             else:
@@ -159,7 +159,7 @@ def load_checks_page():
 
             if successful_resps > 0:
                 is_success = load_unique_ids_to_snowflake(
-                    successful_uploads, st.session_state["checks_to_load_df"])
+                    successful_uploads, checks_to_load_df)
                 if is_success:
                     st.success(
                         f"✅ Checks synced successfully! Process complete!")
