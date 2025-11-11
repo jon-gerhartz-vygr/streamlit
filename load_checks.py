@@ -56,7 +56,7 @@ def begin():
     except Exception as e:
         print(e)
         st.write("Failed to load checks")
-        return False, is_test_mode, pd.Dataframe()
+        return False, is_test_mode, pd.DataFrame()
 
 
 def load_checks_to_bubble(checks_df):
