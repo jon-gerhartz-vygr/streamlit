@@ -20,6 +20,12 @@ MAX_RETRIES = 3
 RETRY_BACKOFF = 1
 
 
+import certifi, ssl
+print("SF connector version:", snowflake.connector.__version__)
+print("certifi CA bundle:", certifi.where())
+print("OpenSSL:", ssl.OPENSSL_VERSION)
+
+
 def get_bubble_env():
     if "is_test_mode" not in st.session_state:
         st.session_state["is_test_mode"] = False
