@@ -14,8 +14,20 @@ load_dotenv()
 SNOWFLAKE_ACCOUNT_ID = os.getenv("SNOWFLAKE_ACCOUNT_ID")
 BASE_URL = os.getenv("BASE_URL")
 REFRESH_URI = BASE_URL + os.getenv("REFRESH_URI")
+BUBBLE_KEY = os.getenv("BUBBLE_KEY")
+BUBBLE_BASE_URL = os.getenv("BUBBLE_BASE_URL")
 MAX_RETRIES = 3
 RETRY_BACKOFF = 1
+
+
+def get_bubble_env():
+    if "is_test_mode" not in st.session_state:
+        st.session_state["is_test_mode"] = False
+
+    if st.session_state["is_test_mode"] == True:
+        return os.getenv("BUBBLE_BASE_URL_TEST")
+    else:
+        return os.getenv("BUBBLE_BASE_URL")
 
 
 def connect_to_sf(token, type='session'):
@@ -97,7 +109,6 @@ def load_data(data, tbl_name, schema):
                 data.to_sql(tbl_name, conn, schema=schema,
                             index=False, chunksize=16000)
                 resp = 'success'
-                conn.commit()
                 return resp
 
         except Exception as e:
@@ -115,3 +126,17 @@ def execute_pd(query):
         except Exception as e:
             message = handle_db_error(e)
             return message
+
+
+def create_bubble_thing(obj_type, payload):
+    headers = {'authorization': f'bearer {BUBBLE_KEY}'}
+
+    BUBBLE_BASE_URL_DYNAMIC = get_bubble_env()
+    base_url = f'{BUBBLE_BASE_URL_DYNAMIC}/{obj_type}'
+
+    try:
+        resp = requests.post(base_url, headers=headers, json=payload)
+        return resp
+    except Exception as e:
+        print(e)
+        return str(e)

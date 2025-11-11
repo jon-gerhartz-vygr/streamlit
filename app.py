@@ -1,6 +1,7 @@
 import asyncio
 from auth import handle_auth, logout
 from cashed_checks import cashed_checks
+from load_checks import load_checks_page
 from login import login_page
 from process_reissues import process_reissues
 import streamlit as st
@@ -14,8 +15,8 @@ async def main():
 
     st.title("Voyager Estate Ops Portal")
 
-    tab1, tab2, tab3 = st.tabs(
-        ['Login', 'Cashed Checks', 'Reissue Processing'])
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ['Login', 'Cashed Checks', 'Reissue Processing', 'Load Checks'])
 
     with tab1:
         st.write("Voyager Streamlit Home Page")
@@ -26,5 +27,8 @@ async def main():
 
     with tab3:
         process_reissues()
+
+    with tab4:
+        load_checks_page()
 
 asyncio.run(main())
