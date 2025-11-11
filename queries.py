@@ -536,3 +536,87 @@ order by "Check Number" asc)
 order by "Check Number" asc
 ;
 """
+
+#################################
+#### QUERIES FOR LOAD CHECKS ####
+#################################
+
+q_get_new_checks = """
+    SELECT *
+    FROM LIQUIDATION_TRUST.SRC.INSERT_BUBBLE_CHECK;
+"""
+
+q_merge_loaded_unique_ids = """
+    MERGE INTO LIQUIDATION_TRUST.BUBBLE_ACTUAL.BUBBLE_CHECK a
+    USING LIQUIDATION_TRUST.STG.BUBBLE_CHECK_UPLOADS b
+    ON a."checkNum" = b."checkNum"
+    WHEN MATCHED THEN
+        UPDATE 
+            SET a."unique id" = b."unique id"
+            
+    WHEN NOT MATCHED THEN
+        INSERT (
+            "amount",
+            "checkNum",
+            "claimNumber",
+            "distribution",
+            "issuedTo",
+            "lastUpdated",
+            "payee",
+            "status",
+            "unique id",
+            bubble_extraction_date,
+            sync_ts
+        )
+        VALUES (
+            amount,
+            "checkNum",
+            "claimNumber",
+            distribution,
+            "issuedTo",
+            to_timestamp("lastUpdated", 'YYYY-MM-DD HH24:MI:SS.FF6 TZH:TZM'),
+            payee,
+            status,
+            "unique id",
+            current_date,
+            current_timestamp
+        );
+"""
+
+
+q_merge_loaded_unique_ids_test = """
+    MERGE INTO LIQUIDATION_TRUST.BUBBLE_ACTUAL.TEST_BUBBLE_CHECK a
+    USING LIQUIDATION_TRUST.STG.BUBBLE_CHECK_UPLOADS b
+    ON a."checkNum" = b."checkNum"
+    WHEN MATCHED THEN
+        UPDATE 
+            SET a."unique id" = b."unique id"
+            
+    WHEN NOT MATCHED THEN
+        INSERT (
+            "amount",
+            "checkNum",
+            "claimNumber",
+            "distribution",
+            "issuedTo",
+            "lastUpdated",
+            "payee",
+            "status",
+            "unique id",
+            bubble_extraction_date,
+            sync_ts
+        )
+        VALUES (
+            amount,
+            "checkNum",
+            "claimNumber",
+            distribution,
+            "issuedTo",
+            to_timestamp("lastUpdated", 'YYYY-MM-DD HH24:MI:SS.FF6 TZH:TZM'),
+            payee,
+            status,
+            "unique id",
+            current_date,
+            current_timestamp
+        );
+"""
