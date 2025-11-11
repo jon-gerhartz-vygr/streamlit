@@ -20,10 +20,14 @@ MAX_RETRIES = 3
 RETRY_BACKOFF = 1
 
 
-import certifi, ssl
-print("SF connector version:", snowflake.connector.__version__)
-print("certifi CA bundle:", certifi.where())
-print("OpenSSL:", ssl.OPENSSL_VERSION)
+import certifi
+# use the certifi bundle explicitly
+os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
+os.environ["SSL_CERT_FILE"] = certifi.where()
+
+# make sure OCSP cache server is used and fail-open is allowed
+os.environ["SF_OCSP_RESPONSE_CACHE_SERVER_ENABLED"] = "true"
+os.environ["SF_OCSP_FAIL_OPEN"] = "true"  # honors fail-open behavior
 
 
 def get_bubble_env():
