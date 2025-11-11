@@ -46,7 +46,8 @@ def connect_to_sf(token, type='session'):
         authenticator='oauth',
         token=token,
         database='LIQUIDATION_TRUST',
-        SCHEMA='STG'
+        SCHEMA='STG',
+        ocsp_fail_open=True
     )
     engine = create_engine(url_obj, pool_pre_ping=True, pool_recycle=1800)
     Session = sessionmaker(bind=engine)
