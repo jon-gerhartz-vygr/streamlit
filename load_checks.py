@@ -145,7 +145,7 @@ def load_checks_page():
     if successfully_loaded_checks:
         st.write("Step 1 - Load Checks to Bubble")
         st.button('Load Checks', key='load_checks_to_bubble')
-        if len(checks_to_load_df.index) > 0:
+        if st.session_state['load_checks_to_bubble']:
             all_success, successful_resps, successful_uploads, failed_checks_df, failed_count = load_checks_to_bubble(
                 checks_to_load_df)
             if all_success:
